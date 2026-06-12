@@ -52,7 +52,8 @@
     if (currentState === STATE.IDLE) {
       currentState = STATE.SCRATCHING;
       hintEl.style.opacity = '0';
-      // 隐藏安装提示
+      // 隐藏待机星光
+      ParticleSystem.fadeOutIdleStars();
       const installTip = document.getElementById('installTip');
       if (installTip) installTip.style.display = 'none';
     }
@@ -76,8 +77,8 @@
 
   // ========== 进度回调 ==========
   function onProgress(percent) {
-    // 进度达到 65% 时触发揭示
-    if (percent >= 0.65 && !hasRevealed) {
+    // 进度达到 40% 时触发揭示
+    if (percent >= 0.40 && !hasRevealed) {
       hasRevealed = true;
       const elapsed = (performance.now() / 1000) - startTime;
       ScratchLayer.triggerReveal(elapsed);
@@ -92,6 +93,13 @@
     hintEl.style.display = 'none';
     const installTip = document.getElementById('installTip');
     if (installTip) installTip.style.display = 'none';
+    // 显示重新抽取按钮
+    const replayBtn = document.getElementById('replayBtn');
+    if (replayBtn) {
+      replayBtn.style.display = 'block';
+      // 延迟淡入
+      setTimeout(() => { replayBtn.style.opacity = '1'; }, 50);
+    }
   }
 
   // ========== 动画循环 ==========
@@ -107,16 +115,19 @@
     lastFrameTime = timeSec;
     const elapsed = timeSec - startTime;
 
-    // 1. 绘制圣诞树（底层 — 持续动画灯光）
-    TreeDrawer.draw(treeCtx, window.innerWidth, window.innerHeight, treeId, elapsed);
+    // 接近揭示时获取刮开进度，用于树底金光渗透效果
+    const scratchProgress = ScratchLayer.getProgress();
+
+    // 1. 绘制圣诞树（底层 — 持续动画灯光 + 接近揭示时金光渗透）
+    TreeDrawer.draw(treeCtx, window.innerWidth, window.innerHeight, treeId, elapsed, scratchProgress);
 
     // 2. 更新刮开层
     ScratchLayer.update(dt, elapsed);
 
     // 3. 更新并绘制粒子
-    ParticleSystem.update(dt);
+    ParticleSystem.update(dt, elapsed);
     particleCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    ParticleSystem.draw(particleCtx);
+    ParticleSystem.draw(particleCtx, elapsed);
   }
 
   // ========== 鼠标移动（未按下时更新光标位置） ==========

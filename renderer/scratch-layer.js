@@ -14,16 +14,18 @@ const ScratchLayer = (() => {
   const DESKTOP_BRUSH = 45;    // 鼠标画笔
   let progressCallback = null;    // fn(percent) — 进度回调
   let revealCallback = null;      // fn() — 揭示回调
+  let currentProgress = 0;        // 当前擦除进度 0-1
 
   // 进度采样控制
   let sampleTimer = 0;
-  const SAMPLE_INTERVAL = 0.4; // 每 0.4s 采样一次
+  const SAMPLE_INTERVAL = 0.4;     // 每 0.4s 采样一次
+  const REVEAL_THRESHOLD = 0.40;   // 刮开 40% 触发揭示
 
   // 揭示过渡动画
   let isRevealing = false;
   let revealAlpha = 1.0;
   let revealStartTime = 0;
-  const REVEAL_DURATION = 1.0; // 1 秒淡出
+  const REVEAL_DURATION = 1.0;     // 1 秒淡出
 
   function init(canvasEl, onProgress, onReveal) {
     canvas = canvasEl;
@@ -201,8 +203,14 @@ const ScratchLayer = (() => {
     if (sampleTimer >= SAMPLE_INTERVAL && isPointerDown) {
       sampleTimer = 0;
       const percent = sampleProgress();
+      currentProgress = percent;
       if (progressCallback) progressCallback(percent);
     }
+  }
+
+  /** 获取当前擦除进度 */
+  function getProgress() {
+    return currentProgress;
   }
 
   /** 触发揭示流程 */
@@ -223,5 +231,5 @@ const ScratchLayer = (() => {
     canvas.removeEventListener('pointercancel', onPointerUp);
   }
 
-  return { init, resize, reset, update, triggerReveal, destroy };
+  return { init, resize, reset, update, triggerReveal, getProgress, destroy };
 })();
