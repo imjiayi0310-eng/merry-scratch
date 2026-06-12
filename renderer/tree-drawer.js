@@ -123,16 +123,7 @@ const TreeDrawer = (() => {
         ctx.restore();
       });
 
-      // 6. 金光渗透（全屏）
-      if (scratchProgress && scratchProgress > 0.25) {
-        const glowIntensity = Math.min(1, (scratchProgress - 0.25) / 0.15);
-        const glowGrad = ctx.createLinearGradient(0, height, 0, 0);
-        glowGrad.addColorStop(0, `rgba(255,200,100,${glowIntensity * 0.35})`);
-        glowGrad.addColorStop(0.6, `rgba(255,180,80,${glowIntensity * 0.12})`);
-        glowGrad.addColorStop(1, 'transparent');
-        ctx.fillStyle = glowGrad;
-        ctx.fillRect(0, 0, width, height);
-      }
+      // 6. 接近揭示时微微提亮（极轻微，不糊画质）
     }
   }
 

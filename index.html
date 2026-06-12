@@ -105,33 +105,34 @@
       font-size: 13px;
       pointer-events: none;
     }
-    /* 重新抽取按钮 */
+    /* 重新抽取按钮 — 小巧不打扰 */
     #replayBtn {
       display: none;
       position: fixed;
-      bottom: 40px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 32px;
+      right: 20px;
       z-index: 10;
-      padding: 12px 28px;
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      border-radius: 25px;
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      color: rgba(255, 255, 255, 0.8);
-      font-family: -apple-system, 'PingFang SC', sans-serif;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      color: rgba(255, 255, 255, 0.45);
       font-size: 16px;
-      letter-spacing: 2px;
       cursor: pointer;
       transition: all 0.3s ease;
       -webkit-tap-highlight-color: transparent;
+      line-height: 38px;
+      text-align: center;
+      padding: 0;
     }
     #replayBtn:active {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.7);
-      color: #fff;
-      transform: translateX(-50%) scale(0.95);
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.8);
+      transform: scale(0.9);
     }
   </style>
 </head>
@@ -143,7 +144,7 @@
   </div>
   <div id="guideText"></div>
   <div id="installTip">💡 点击分享 → 添加到主屏幕，体验更佳</div>
-  <button id="replayBtn" onclick="window.__merryScratch.resetTree()">🎄 重新抽取一棵圣诞树</button>
+  <button id="replayBtn" onclick="window.__merryScratch.resetTree()">🎄</button>
 
   <script src="renderer/storage.js"></script>
   <script src="renderer/tree-drawer.js"></script>
