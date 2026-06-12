@@ -48,7 +48,7 @@
   <h2>🎵 Merry Scratch 音效试听</h2>
 
   <div>
-    <p class="hint">刮擦音效 — 树叶翻动般轻柔沙沙声</p>
+    <p class="hint">刮擦音效 — 冬季风雪环境声</p>
     <button id="scratchBtn">按住模拟刮擦</button>
   </div>
 
@@ -59,6 +59,9 @@
 
   <script src="renderer/sound-manager.js"></script>
   <script>
+    // 预加载音频
+    SoundManager.preloadAll();
+
     const scratchBtn = document.getElementById('scratchBtn');
     const bellBtn = document.getElementById('bellBtn');
 

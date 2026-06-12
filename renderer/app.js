@@ -273,8 +273,8 @@
     resizeCanvases();
     ScratchLayer.init(scratchCanvas, onProgress, onReveal);
 
-    // 预加载揭示音频
-    SoundManager.preloadReveal();
+    // 预加载所有音频
+    SoundManager.preloadAll();
 
     // 启动打字机引导文字
     startGuideText();
