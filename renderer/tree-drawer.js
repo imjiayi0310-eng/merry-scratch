@@ -112,54 +112,24 @@ const TreeDrawer = (() => {
       // ---- 绘制树图 ----
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
-      // ---- 边缘羽化过渡（用多层渐变将硬边融入背景） ----
+      // ---- 椭圆柔光罩：树区域中心透明，边缘融进背景（消除截图矩形感） ----
       const treeRight = treeLeft + treeW;
       const treeBottom = treeTop + treeH;
-      const featherW = treeW * 0.12;
-      const featherH = treeH * 0.08;
+      const cx = width / 2;
+      const cy = treeTop + treeH * 0.48;
 
-      // 左边缘 → 背景
-      const leftGrad = ctx.createLinearGradient(treeLeft - featherW * 0.3, 0, treeLeft + featherW, 0);
-      leftGrad.addColorStop(0, '#020208');
-      leftGrad.addColorStop(0.4, 'rgba(2,2,8,0.5)');
-      leftGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = leftGrad;
-      ctx.fillRect(treeLeft - featherW * 0.3, treeTop, featherW * 1.3, treeH);
-
-      // 右边缘 → 背景
-      const rightGrad = ctx.createLinearGradient(treeRight + featherW * 0.3, 0, treeRight - featherW, 0);
-      rightGrad.addColorStop(0, '#020208');
-      rightGrad.addColorStop(0.4, 'rgba(2,2,8,0.5)');
-      rightGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = rightGrad;
-      ctx.fillRect(treeRight - featherW, treeTop, featherW * 1.3, treeH);
-
-      // 顶部边缘 → 背景
-      const topGrad = ctx.createLinearGradient(0, treeTop - featherH * 0.3, 0, treeTop + featherH * 1.5);
-      topGrad.addColorStop(0, '#020208');
-      topGrad.addColorStop(0.5, 'rgba(2,2,8,0.4)');
-      topGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = topGrad;
-      ctx.fillRect(treeLeft, treeTop - featherH * 0.3, treeW, featherH * 1.8);
-
-      // 底部 → 地面（更宽的过渡）
-      const bottomGrad = ctx.createLinearGradient(0, treeBottom + featherH * 2, 0, treeBottom - featherH * 1.2);
-      bottomGrad.addColorStop(0, '#020208');
-      bottomGrad.addColorStop(0.3, 'rgba(2,2,8,0.65)');
-      bottomGrad.addColorStop(1, 'transparent');
-      ctx.fillStyle = bottomGrad;
-      ctx.fillRect(treeLeft, treeBottom - featherH * 1.2, treeW, featherH * 3.2);
-
-      // ---- 树区域整体柔光罩（subtle vignette-like blend） ----
-      const vignetteGrad = ctx.createRadialGradient(
-        width / 2, treeTop + treeH * 0.5, treeW * 0.55,
-        width / 2, treeTop + treeH * 0.5, treeW * 0.7
-      );
-      vignetteGrad.addColorStop(0, 'transparent');
-      vignetteGrad.addColorStop(0.7, 'transparent');
-      vignetteGrad.addColorStop(1, 'rgba(2,2,8,0.35)');
-      ctx.fillStyle = vignetteGrad;
-      ctx.fillRect(treeLeft - 10, treeTop - 10, treeW + 20, treeH + 20);
+      // 外层椭圆 — 完全覆盖背景色，遮挡截图边缘
+      ctx.save();
+      const outerMask = ctx.createRadialGradient(cx, cy, treeW * 0.28, cx, cy, treeW * 0.72);
+      outerMask.addColorStop(0, 'transparent');
+      outerMask.addColorStop(0.35, 'transparent');
+      outerMask.addColorStop(0.65, 'rgba(2,2,8,0.45)');
+      outerMask.addColorStop(0.85, 'rgba(2,2,8,0.85)');
+      outerMask.addColorStop(1, '#020208');
+      ctx.fillStyle = outerMask;
+      // 扩大到图片外一截，确保边缘完全覆盖
+      ctx.fillRect(treeLeft - treeW * 0.25, treeTop - treeH * 0.12, treeW * 1.5, treeH * 1.25);
+      ctx.restore();
 
       // 5. 浮动闪烁光点
       floatingLights.forEach(light => {
