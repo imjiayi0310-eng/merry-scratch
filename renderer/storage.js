@@ -4,7 +4,7 @@
  */
 const Storage = (() => {
   const STORAGE_KEY = 'merry-scratch-tree-id';
-  const TOTAL_TREES = 5;
+  const TOTAL_TREES = 6;
 
   /**
    * 获取当前用户的圣诞树编号 (1-5)
