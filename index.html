@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Merry Scratch</title>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Apple 主屏幕图标 -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
+
+  <!-- Apple 全屏 Web App 支持 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Merry Scratch">
+
+  <!-- 主题色 -->
+  <meta name="theme-color" content="#000000">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      /* 安全区域适配 iPhone 刘海屏 */
+      height: 100dvh;
+      overflow: hidden;
+      background: #000;
+      /* 禁止文字选中和长按菜单 */
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      /* 防止页面下拉刷新和回弹 */
+      overscroll-behavior: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+    #container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none; /* 禁止浏览器默认手势 */
+    }
+    #treeCanvas {
+      z-index: 1;
+    }
+    #scratchCanvas {
+      z-index: 2;
+    }
+    #particleCanvas {
+      z-index: 3;
+      pointer-events: none;
+    }
+    #hint {
+      position: fixed;
+      bottom: 80px;
+      width: 100%;
+      text-align: center;
+      z-index: 5;
+      color: rgba(255, 255, 255, 0.55);
+      font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-size: clamp(15px, 3.5vw, 20px);
+      letter-spacing: 2px;
+      pointer-events: none;
+      animation: hintPulse 2.5s ease-in-out infinite;
+      padding: 0 20px;
+    }
+    @keyframes hintPulse {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 0.7; }
+    }
+    /* 添加到主屏幕引导提示（iOS 专属） */
+    #installTip {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      z-index: 6;
+      color: rgba(255, 255, 255, 0.5);
+      font-family: -apple-system, 'PingFang SC', sans-serif;
+      font-size: 13px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <canvas id="treeCanvas"></canvas>
+    <canvas id="scratchCanvas"></canvas>
+    <canvas id="particleCanvas"></canvas>
+  </div>
+  <div id="hint">✨ 用手指涂抹黑色画面，发现惊喜 ✨</div>
+  <div id="installTip">💡 点击分享 → 添加到主屏幕，体验更佳</div>
+
+  <script src="renderer/storage.js"></script>
+  <script src="renderer/tree-drawer.js"></script>
+  <script src="renderer/sound-manager.js"></script>
+  <script src="renderer/particle-system.js"></script>
+  <script src="renderer/scratch-layer.js"></script>
+  <script src="renderer/app.js"></script>
+</body>
+</html>
