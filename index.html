@@ -64,23 +64,33 @@
       z-index: 3;
       pointer-events: none;
     }
-    #hint {
+    #hint { display: none; }
+    /* 打字机引导文字 */
+    #guideText {
       position: fixed;
-      bottom: 80px;
+      bottom: 25%;
       width: 100%;
       text-align: center;
       z-index: 5;
-      color: rgba(255, 255, 255, 0.55);
+      color: rgba(255, 255, 255, 0.6);
       font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
-      font-size: clamp(15px, 3.5vw, 20px);
-      letter-spacing: 2px;
+      font-size: clamp(16px, 4vw, 22px);
+      letter-spacing: 3px;
       pointer-events: none;
-      animation: hintPulse 2.5s ease-in-out infinite;
-      padding: 0 20px;
+      line-height: 2;
+      transition: opacity 0.4s ease;
     }
-    @keyframes hintPulse {
-      0%, 100% { opacity: 0.25; }
-      50% { opacity: 0.7; }
+    /* 闪烁光标 */
+    #guideText::after {
+      content: '|';
+      animation: blink 0.8s step-end infinite;
+      color: rgba(255, 255, 255, 0.4);
+    }
+    #guideText.done::after {
+      display: none;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
     }
     /* 添加到主屏幕引导提示（iOS 专属） */
     #installTip {
@@ -131,7 +141,7 @@
     <canvas id="scratchCanvas"></canvas>
     <canvas id="particleCanvas"></canvas>
   </div>
-  <div id="hint">✨ 用手指涂抹黑色画面，发现惊喜 ✨</div>
+  <div id="guideText"></div>
   <div id="installTip">💡 点击分享 → 添加到主屏幕，体验更佳</div>
   <button id="replayBtn" onclick="window.__merryScratch.resetTree()">🎄 重新抽取一棵圣诞树</button>
 
