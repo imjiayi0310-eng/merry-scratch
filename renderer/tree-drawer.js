@@ -4,13 +4,14 @@
  * 叠加闪烁光点、背景星空、金光渗透效果
  */
 const TreeDrawer = (() => {
-  let treeImages = [];       // 预加载的 Image 对象（索引 1-6）
+  let treeImage = null;      // 当前树的 Image 对象
   let floatingLights = [];   // 浮动光点
-  let loadPromise = null;    // 预加载 Promise
+  let loadPromise = null;    // 加载 Promise
+  let currentTreeId = 1;
 
-  // ========== 图片预加载 ==========
+  // ========== 图片加载 ==========
   function init(treeId) {
-    // 生成浮动光点（每次 init 重新随机）
+    currentTreeId = treeId;
     floatingLights = [];
     const lightColors = ['#ffd700', '#ffcc88', '#ffeedd', '#ffffff', '#ffb8c6', '#ffddcc'];
     for (let i = 0; i < 35; i++) {
@@ -24,27 +25,17 @@ const TreeDrawer = (() => {
       });
     }
 
-    // 首次调用时预加载所有图片
-    if (!loadPromise) {
-      const loads = [];
-      treeImages = [];
-      for (let i = 1; i <= 6; i++) {
-        const img = new Image();
-        const loadOne = new Promise((resolve) => {
-          img.onload = () => resolve(true);
-          img.onerror = () => resolve(false); // 即使失败也不阻塞
-        });
-        img.src = `assets/tree-${i}.png`;
-        treeImages[i] = img;
-        loads.push(loadOne);
-      }
-      loadPromise = Promise.all(loads);
-    }
+    // 只加载当前分配的那棵树
+    treeImage = new Image();
+    loadPromise = new Promise((resolve) => {
+      treeImage.onload = () => resolve(true);
+      treeImage.onerror = () => resolve(false);
+    });
+    treeImage.src = `assets/tree-${treeId}.jpg`;
 
     return treeId;
   }
 
-  /** 返回预加载 Promise，供 app.js 等待 */
   function ready() {
     return loadPromise || Promise.resolve();
   }
@@ -83,58 +74,34 @@ const TreeDrawer = (() => {
 
     // 4. 绘制手绘圣诞树图片
     if (treeId < 1 || treeId > 6) treeId = 1;
-    const img = treeImages[treeId];
-    if (img && img.complete && img.naturalWidth > 0) {
-      const maxTreeH = height * 0.78;
-      const maxTreeW = width * 0.88;
-      const scale = Math.min(maxTreeW / img.naturalWidth, maxTreeH / img.naturalHeight);
+    if (treeImage && treeImage.complete && treeImage.naturalWidth > 0) {
+      const img = treeImage;
+      // 撑满竖屏：以高度为准，宽度居中（超出部分自然裁切）
+      const scale = height / img.naturalHeight;
       const drawW = img.naturalWidth * scale;
-      const drawH = img.naturalHeight * scale;
+      const drawH = height;
       const drawX = (width - drawW) / 2;
-      const drawY = height * 0.03;
+      const drawY = 0;
 
-      const treeLeft = drawX;
-      const treeTop = drawY;
-      const treeW = drawW;
-      const treeH = drawH;
-
-      // ---- 树背后的暖光氛围 ----
-      const ambientGlow = ctx.createRadialGradient(
-        width / 2, treeTop + treeH * 0.45, treeW * 0.15,
-        width / 2, treeTop + treeH * 0.5, treeW * 0.7
-      );
-      ambientGlow.addColorStop(0, 'rgba(255,220,170,0.10)');
-      ambientGlow.addColorStop(0.5, 'rgba(255,180,120,0.04)');
-      ambientGlow.addColorStop(1, 'transparent');
-      ctx.fillStyle = ambientGlow;
-      ctx.fillRect(treeLeft - treeW * 0.15, treeTop - treeH * 0.05, treeW * 1.3, treeH * 1.1);
-
-      // ---- 绘制树图 ----
+      // ---- 绘制树图（撑满全屏） ----
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
-      // ---- 椭圆柔光罩：树区域中心透明，边缘融进背景（消除截图矩形感） ----
-      const treeRight = treeLeft + treeW;
-      const treeBottom = treeTop + treeH;
+      // ---- 全屏微暗角：四角微微暗下去，增加画面深度 ----
       const cx = width / 2;
-      const cy = treeTop + treeH * 0.48;
-
-      // 外层椭圆 — 完全覆盖背景色，遮挡截图边缘
+      const cy = height * 0.45;
       ctx.save();
-      const outerMask = ctx.createRadialGradient(cx, cy, treeW * 0.28, cx, cy, treeW * 0.72);
-      outerMask.addColorStop(0, 'transparent');
-      outerMask.addColorStop(0.35, 'transparent');
-      outerMask.addColorStop(0.65, 'rgba(2,2,8,0.45)');
-      outerMask.addColorStop(0.85, 'rgba(2,2,8,0.85)');
-      outerMask.addColorStop(1, '#020208');
-      ctx.fillStyle = outerMask;
-      // 扩大到图片外一截，确保边缘完全覆盖
-      ctx.fillRect(treeLeft - treeW * 0.25, treeTop - treeH * 0.12, treeW * 1.5, treeH * 1.25);
+      const vignette = ctx.createRadialGradient(cx, cy, height * 0.55, cx, cy, height * 0.78);
+      vignette.addColorStop(0, 'transparent');
+      vignette.addColorStop(0.7, 'transparent');
+      vignette.addColorStop(1, 'rgba(2,2,8,0.35)');
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
       ctx.restore();
 
-      // 5. 浮动闪烁光点
+      // 5. 浮动闪烁光点（全屏定位）
       floatingLights.forEach(light => {
-        const lx = treeLeft + light.x * treeW;
-        const ly = treeTop + light.y * treeH;
+        const lx = light.x * width;
+        const ly = light.y * height;
         const brightness = 0.3 + 0.7 * Math.abs(Math.sin(time * light.speed + light.phase));
 
         ctx.save();
@@ -153,15 +120,15 @@ const TreeDrawer = (() => {
         ctx.restore();
       });
 
-      // 6. 金光渗透
+      // 6. 金光渗透（全屏）
       if (scratchProgress && scratchProgress > 0.25) {
         const glowIntensity = Math.min(1, (scratchProgress - 0.25) / 0.15);
-        const glowGrad = ctx.createLinearGradient(0, treeTop + treeH, 0, treeTop);
+        const glowGrad = ctx.createLinearGradient(0, height, 0, 0);
         glowGrad.addColorStop(0, `rgba(255,200,100,${glowIntensity * 0.35})`);
         glowGrad.addColorStop(0.6, `rgba(255,180,80,${glowIntensity * 0.12})`);
         glowGrad.addColorStop(1, 'transparent');
         ctx.fillStyle = glowGrad;
-        ctx.fillRect(treeLeft, treeTop, treeW, treeH);
+        ctx.fillRect(0, 0, width, height);
       }
     }
   }
