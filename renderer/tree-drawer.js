@@ -31,7 +31,7 @@ const TreeDrawer = (() => {
       treeImage.onload = () => resolve(true);
       treeImage.onerror = () => resolve(false);
     });
-    treeImage.src = `assets/tree-${treeId}.jpg`;
+    treeImage.src = `assets/tree-${treeId}.png`;
 
     return treeId;
   }
