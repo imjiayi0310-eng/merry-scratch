@@ -83,12 +83,21 @@ const SoundManager = (() => {
   /** 播放揭示铃声 */
   function playBells() {
     const ctx = getContext();
+    // 确保 context 处于运行状态
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(() => playNow(ctx));
+    } else {
+      playNow(ctx);
+    }
+  }
+
+  function playNow(ctx) {
     if (revealBuffer) {
       const source = ctx.createBufferSource();
       source.buffer = revealBuffer;
       const gain = ctx.createGain();
-      gain.gain.setValueAtTime(0, ctx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.05); // 更快的淡入
       source.connect(gain);
       gain.connect(ctx.destination);
       source.start(0);

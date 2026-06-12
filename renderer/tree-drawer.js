@@ -76,12 +76,12 @@ const TreeDrawer = (() => {
     if (treeId < 1 || treeId > 6) treeId = 1;
     if (treeImage && treeImage.complete && treeImage.naturalWidth > 0) {
       const img = treeImage;
-      // 撑满竖屏：以高度为准，宽度居中（超出部分自然裁切）
-      const scale = height / img.naturalHeight;
+      // 树占屏幕 88% 高度，完整显示整棵树
+      const scale = (height * 0.88) / img.naturalHeight;
       const drawW = img.naturalWidth * scale;
-      const drawH = height;
+      const drawH = img.naturalHeight * scale;
       const drawX = (width - drawW) / 2;
-      const drawY = 0;
+      const drawY = height * 0.02;
 
       // ---- 绘制树图（撑满全屏） ----
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
