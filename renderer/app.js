@@ -305,9 +305,13 @@
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    startTime = performance.now() / 1000;
-    lastFrameTime = 0;
-    animFrameId = requestAnimationFrame(animate);
+    // 等所有圣诞树图片加载完毕后再启动动画
+    TreeDrawer.ready().then(() => {
+      console.log('🎄 所有圣诞树图片已就绪');
+      startTime = performance.now() / 1000;
+      lastFrameTime = 0;
+      animFrameId = requestAnimationFrame(animate);
+    });
   }
 
   if (document.readyState === 'loading') {

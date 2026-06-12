@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音效试听</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #111;
+      color: #fff;
+      font-family: -apple-system, 'PingFang SC', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      gap: 30px;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    button {
+      padding: 16px 40px;
+      font-size: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 30px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      cursor: pointer;
+      letter-spacing: 2px;
+      transition: all 0.2s;
+    }
+    button:active {
+      background: rgba(255,255,255,0.2);
+      transform: scale(0.95);
+    }
+    button.pressed {
+      background: rgba(255,200,100,0.3);
+      border-color: rgba(255,200,100,0.6);
+    }
+    .hint {
+      color: rgba(255,255,255,0.4);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🎵 Merry Scratch 音效试听</h2>
+
+  <div>
+    <p class="hint">刮擦音效 — 树叶翻动般轻柔沙沙声</p>
+    <button id="scratchBtn">按住模拟刮擦</button>
+  </div>
+
+  <div>
+    <p class="hint">揭示铃声 — 温暖圣诞钟声</p>
+    <button id="bellBtn">🔔 播放铃声</button>
+  </div>
+
+  <script src="renderer/sound-manager.js"></script>
+  <script>
+    const scratchBtn = document.getElementById('scratchBtn');
+    const bellBtn = document.getElementById('bellBtn');
+
+    // 刮擦：按住播放，松开停止
+    scratchBtn.addEventListener('pointerdown', () => {
+      SoundManager.ensureContext();
+      SoundManager.startScratch();
+      scratchBtn.classList.add('pressed');
+      scratchBtn.textContent = '正在刮擦...';
+    });
+    scratchBtn.addEventListener('pointerup', () => {
+      SoundManager.stopScratch();
+      scratchBtn.classList.remove('pressed');
+      scratchBtn.textContent = '按住模拟刮擦';
+    });
+    scratchBtn.addEventListener('pointerleave', () => {
+      SoundManager.stopScratch();
+      scratchBtn.classList.remove('pressed');
+      scratchBtn.textContent = '按住模拟刮擦';
+    });
+
+    // 铃声
+    bellBtn.addEventListener('click', () => {
+      SoundManager.ensureContext();
+      SoundManager.playBells();
+    });
+  </script>
+</body>
+</html>
