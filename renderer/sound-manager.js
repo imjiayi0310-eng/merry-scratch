@@ -7,6 +7,7 @@ const SoundManager = (() => {
   let audioCtx = null;
   let scratchNodes = null;
   let isScratching = false;
+  let revealBuffer = null;  // 预加载的揭示音频
 
   function getContext() {
     if (!audioCtx) {
@@ -98,89 +99,54 @@ const SoundManager = (() => {
   }
 
   /**
-   * 温暖圣诞铃声
-   * - Cmaj7 和弦为基础的旋律
-   * - 三角波 + 柔和泛音
-   * - 带自然衰减和轻微延迟
+   * 预加载揭示音频（Christmas List 钢琴版片段）
+   */
+  function preloadReveal() {
+    const ctx = getContext();
+    return fetch('assets/reveal.m4a')
+      .then(res => res.arrayBuffer())
+      .then(buf => ctx.decodeAudioData(buf))
+      .then(decoded => {
+        revealBuffer = decoded;
+      })
+      .catch(() => {
+        // 加载失败时回退到合成铃声
+        console.log('揭示音频加载失败，使用合成铃声');
+      });
+  }
+
+  /**
+   * 播放揭示音频
    */
   function playBells() {
     const ctx = getContext();
-
-    // 温暖和弦：C-E-G-B (Cmaj7) + D (add9)
-    const melody = [
-      // 第一句 — 上行
-      { freq: 523.25, time: 0,      dur: 0.7 },  // C5
-      { freq: 659.25, time: 0.22,   dur: 0.65 }, // E5
-      { freq: 783.99, time: 0.44,   dur: 0.6 },  // G5
-      { freq: 987.77, time: 0.66,   dur: 0.9 },  // B5 (maj7)
-      // 第二句 — 轻柔下行
-      { freq: 783.99, time: 1.15,   dur: 0.55 }, // G5
-      { freq: 659.25, time: 1.35,   dur: 0.5 },  // E5
-      { freq: 587.33, time: 1.55,   dur: 0.5 },  // D5 (add9)
-      { freq: 523.25, time: 1.75,   dur: 1.2 },  // C5 (home)
-    ];
-
-    melody.forEach(note => {
-      const startTime = ctx.currentTime + note.time;
-      const duration = note.dur;
-
-      // 基频 — 三角波（比正弦温暖）
-      const osc1 = ctx.createOscillator();
-      osc1.type = 'triangle';
-      osc1.frequency.value = note.freq;
-
-      // 泛音 — 高八度正弦（轻微）
-      const osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = note.freq * 2;
-      osc2.detune.value = 3; // 微调音，制造厚度
-
-      // 基频包络
-      const gain1 = ctx.createGain();
-      gain1.gain.setValueAtTime(0, startTime);
-      gain1.gain.linearRampToValueAtTime(0.12, startTime + 0.03);  // 快速起音
-      gain1.gain.exponentialRampToValueAtTime(0.001, startTime + duration); // 自然衰减
-
-      // 泛音包络（更轻更快衰减）
-      const gain2 = ctx.createGain();
-      gain2.gain.setValueAtTime(0, startTime);
-      gain2.gain.linearRampToValueAtTime(0.04, startTime + 0.02);
-      gain2.gain.exponentialRampToValueAtTime(0.001, startTime + duration * 0.6);
-
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-
-      osc1.start(startTime);
-      osc1.stop(startTime + duration);
-      osc2.start(startTime);
-      osc2.stop(startTime + duration * 0.6);
-    });
-
-    // 余韵：在最后轻轻弹一个完整 Cmaj7 和弦
-    setTimeout(() => {
-      const chordNotes = [261.63, 329.63, 392.00, 493.88]; // C4-E4-G4-B4
-      const chordStart = ctx.currentTime;
-
-      chordNotes.forEach((freq, i) => {
+    if (revealBuffer) {
+      const source = ctx.createBufferSource();
+      source.buffer = revealBuffer;
+      // 轻柔淡入
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.6, ctx.currentTime + 0.1);
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+    } else {
+      // 回退：简单三角波铃声
+      const now = ctx.currentTime;
+      [523.25, 659.25, 783.99].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         osc.type = 'triangle';
         osc.frequency.value = freq;
-        osc.detune.value = i * 2; // 略微失谐
-
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0, chordStart);
-        gain.gain.linearRampToValueAtTime(0.06, chordStart + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, chordStart + 2.0);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(chordStart);
-        osc.stop(chordStart + 2.0);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0, now + i * 0.2);
+        g.gain.linearRampToValueAtTime(0.1, now + i * 0.2 + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.2 + 0.8);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(now + i * 0.2);
+        osc.stop(now + i * 0.2 + 0.8);
       });
-    }, 2100);
+    }
   }
 
-  return { ensureContext, startScratch, stopScratch, playBells };
+  return { ensureContext, preloadReveal, startScratch, stopScratch, playBells };
 })();
