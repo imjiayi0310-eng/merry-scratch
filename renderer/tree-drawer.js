@@ -86,15 +86,18 @@ const TreeDrawer = (() => {
       // ---- 绘制树图（撑满全屏） ----
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
-      // ---- 全屏微暗角：四角微微暗下去，增加画面深度 ----
+      // ---- 聚光灯效果：中心明亮 → 边缘渐变融入纯黑背景 ----
       const cx = width / 2;
-      const cy = height * 0.45;
+      const cy = height * 0.44;
       ctx.save();
-      const vignette = ctx.createRadialGradient(cx, cy, height * 0.55, cx, cy, height * 0.78);
-      vignette.addColorStop(0, 'transparent');
-      vignette.addColorStop(0.7, 'transparent');
-      vignette.addColorStop(1, 'rgba(2,2,8,0.35)');
-      ctx.fillStyle = vignette;
+      // 从内到外：全透明 → 半透明 → 不透明背景色
+      const spotlight = ctx.createRadialGradient(cx, cy, height * 0.18, cx, cy, height * 0.72);
+      spotlight.addColorStop(0, 'transparent');
+      spotlight.addColorStop(0.40, 'transparent');
+      spotlight.addColorStop(0.65, 'rgba(2,2,8,0.5)');
+      spotlight.addColorStop(0.85, 'rgba(2,2,8,0.88)');
+      spotlight.addColorStop(1, '#020208');
+      ctx.fillStyle = spotlight;
       ctx.fillRect(0, 0, width, height);
       ctx.restore();
 

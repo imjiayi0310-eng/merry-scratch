@@ -29,6 +29,7 @@
   let guideExploding = false;
   let guideExplosionTime = 0;
   let guideAlpha = 1;
+  let typewriterTimer = null;
   const GLOW_CX = () => window.innerWidth / 2;
   const GLOW_CY = () => window.innerHeight * 0.42;
 
@@ -56,12 +57,14 @@
     let i = 0;
     element.textContent = '';
     element.classList.remove('done');
-    const timer = setInterval(() => {
+    if (typewriterTimer) clearInterval(typewriterTimer);
+    typewriterTimer = setInterval(() => {
       if (i < text.length) {
         element.textContent += text[i];
         i++;
       } else {
-        clearInterval(timer);
+        clearInterval(typewriterTimer);
+        typewriterTimer = null;
         element.classList.add('done');
         if (callback) callback();
       }
@@ -323,13 +326,52 @@
     init();
   }
 
+  // ========== 原地重置（不刷新页面） ==========
+  function resetGame() {
+    // 清理所有定时器
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+
+    // 重新随机一棵树
+    Storage.resetTreeId();
+    treeId = Storage.getTreeId();
+    TreeDrawer.init(treeId);
+    console.log(`🎄 新圣诞树：#${treeId}「${TreeDrawer.getTreeName(treeId)}」`);
+
+    // 重置状态
+    currentState = STATE.GUIDE;
+    hasRevealed = false;
+    guideExploding = false;
+
+    // 重置刮开层
+    ScratchLayer.destroy();
+    scratchCanvas.style.opacity = '1';
+    scratchCanvas.style.pointerEvents = 'auto';
+    ScratchLayer.init(scratchCanvas, onProgress, onReveal);
+
+    // 重置粒子
+    ParticleSystem.init(window.innerWidth, window.innerHeight);
+
+    // 隐藏重抽按钮、显示引导文字
+    const replayBtn = document.getElementById('replayBtn');
+    if (replayBtn) replayBtn.style.display = 'none';
+    guideTextEl.style.display = '';
+    guideTextEl.style.opacity = '1';
+    guideTextEl.classList.remove('done');
+    startGuideText();
+
+    // 重新启动动画（等新图加载好）
+    TreeDrawer.ready().then(() => {
+      startTime = performance.now() / 1000;
+      lastFrameTime = 0;
+      animFrameId = requestAnimationFrame(animate);
+    });
+  }
+
   window.__merryScratch = {
     getState: () => currentState,
     getTreeId: () => treeId,
     getTreeName: () => TreeDrawer.getTreeName(treeId),
-    resetTree: () => {
-      Storage.resetTreeId();
-      location.reload();
-    },
+    resetTree: resetGame,
   };
 })();

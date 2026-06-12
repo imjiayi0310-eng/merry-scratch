@@ -12,9 +12,11 @@ const ScratchLayer = (() => {
   let totalPixels = 0;
   const MOBILE_BRUSH = 70;     // 手指触控画笔（更大）
   const DESKTOP_BRUSH = 45;    // 鼠标画笔
-  let progressCallback = null;    // fn(percent) — 进度回调
-  let revealCallback = null;      // fn() — 揭示回调
-  let currentProgress = 0;        // 当前擦除进度 0-1
+  let progressCallback = null;
+  let revealCallback = null;
+  let currentProgress = 0;
+  // 存储事件引用以便清理
+  let _preventDefault = null;
 
   // 进度采样控制
   let sampleTimer = 0;
@@ -46,8 +48,9 @@ const ScratchLayer = (() => {
     canvas.addEventListener('pointercancel', onPointerUp);
 
     // 防止默认触摸行为（滚动、缩放）
-    canvas.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-    canvas.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    _preventDefault = e => e.preventDefault();
+    canvas.addEventListener('touchstart', _preventDefault, { passive: false });
+    canvas.addEventListener('touchmove', _preventDefault, { passive: false });
   }
 
   function resize() {
@@ -229,6 +232,10 @@ const ScratchLayer = (() => {
     canvas.removeEventListener('pointerup', onPointerUp);
     canvas.removeEventListener('pointerleave', onPointerUp);
     canvas.removeEventListener('pointercancel', onPointerUp);
+    if (_preventDefault) {
+      canvas.removeEventListener('touchstart', _preventDefault);
+      canvas.removeEventListener('touchmove', _preventDefault);
+    }
   }
 
   return { init, resize, reset, update, triggerReveal, getProgress, destroy };
