@@ -4,153 +4,192 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Merry Scratch</title>
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Apple 主屏幕图标 -->
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/icon-180.png">
-
-  <!-- Apple 全屏 Web App 支持 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="Merry Scratch">
-
-  <!-- 主题色 -->
   <meta name="theme-color" content="#000000">
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      width: 100%;
-      height: 100%;
-      /* 安全区域适配 iPhone 刘海屏 */
-      height: 100dvh;
-      overflow: hidden;
-      background: #000;
-      /* 禁止文字选中和长按菜单 */
-      user-select: none;
-      -webkit-user-select: none;
-      -webkit-touch-callout: none;
-      -webkit-tap-highlight-color: transparent;
-      /* 防止页面下拉刷新和回弹 */
-      overscroll-behavior: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-    }
-    #container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      height: 100dvh;
-    }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: block;
-      touch-action: none; /* 禁止浏览器默认手势 */
-    }
-    #treeCanvas {
-      z-index: 1;
-    }
-    #scratchCanvas {
-      z-index: 2;
-    }
-    #particleCanvas {
-      z-index: 3;
-      pointer-events: none;
-    }
-    #hint { display: none; }
-    /* 打字机引导文字 */
-    #guideText {
-      position: fixed;
-      bottom: 25%;
-      width: 100%;
-      text-align: center;
-      z-index: 5;
-      color: rgba(255, 255, 255, 0.6);
-      font-family: -apple-system, 'PingFang SC', 'Hiragino Sans GB', sans-serif;
-      font-size: clamp(16px, 4vw, 22px);
-      letter-spacing: 3px;
-      pointer-events: none;
-      line-height: 2;
-      transition: opacity 0.4s ease;
-    }
-    /* 闪烁光标 */
-    #guideText::after {
-      content: '|';
-      animation: blink 0.8s step-end infinite;
-      color: rgba(255, 255, 255, 0.4);
-    }
-    #guideText.done::after {
-      display: none;
-    }
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-    /* 添加到主屏幕引导提示（iOS 专属） */
-    #installTip {
-      display: none;
-      position: fixed;
-      bottom: 30px;
-      width: 100%;
-      text-align: center;
-      z-index: 6;
-      color: rgba(255, 255, 255, 0.5);
-      font-family: -apple-system, 'PingFang SC', sans-serif;
-      font-size: 13px;
-      pointer-events: none;
-    }
-    /* 重新抽取按钮 — 小巧不打扰 */
-    #replayBtn {
-      display: none;
-      position: fixed;
-      bottom: 32px;
-      right: 20px;
-      z-index: 10;
-      width: 38px;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      color: rgba(255, 255, 255, 0.45);
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      -webkit-tap-highlight-color: transparent;
-      line-height: 38px;
-      text-align: center;
-      padding: 0;
-    }
-    #replayBtn:active {
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.5);
-      color: rgba(255, 255, 255, 0.8);
-      transform: scale(0.9);
-    }
-  </style>
+  <link rel="stylesheet" href="src/styles/main-x4.css">
 </head>
 <body>
-  <div id="container">
-    <canvas id="treeCanvas"></canvas>
-    <canvas id="scratchCanvas"></canvas>
-    <canvas id="particleCanvas"></canvas>
-  </div>
-  <div id="guideText"></div>
-  <div id="installTip">💡 点击分享 → 添加到主屏幕，体验更佳</div>
-  <button id="replayBtn" onclick="window.__merryScratch.resetTree()">🎄</button>
 
-  <script src="renderer/storage.js"></script>
-  <script src="renderer/tree-drawer.js"></script>
-  <script src="renderer/sound-manager.js"></script>
-  <script src="renderer/particle-system.js"></script>
-  <script src="renderer/scratch-layer.js"></script>
-  <script src="renderer/app.js"></script>
+<!-- ===== HOME PAGE ===== -->
+<div id="page-home" class="page">
+  <div class="home-bg"></div>
+  <div class="home-stars"></div>
+  <div class="home-content">
+    <div class="home-title">Merry Scratch</div>
+    <button class="home-btn highlight" onclick="Router.navigate('home')">
+      🎁 我有刮奖链接
+    </button>
+    <button class="home-btn" onclick="Router.navigate('create')">
+      🎅 为朋友准备惊喜
+    </button>
+  </div>
+</div>
+
+<!-- ===== VIDEO PAGE ===== -->
+<div id="page-video" class="page">
+  <div class="video-container">
+    <!-- 标题页 -->
+    <div class="video-splash">
+      <div class="splash-title">Merry Scratch</div>
+      <div class="splash-subtitle">圣诞刮刮乐</div>
+      <div class="progress-wrap">
+        <div class="progress-track"><div class="progress-bar" style="width:0%"></div></div>
+        <div class="progress-text">0%</div>
+      </div>
+    </div>
+    <video playsinline preload="auto"
+           webkit-playsinline x5-video-player-type="h5"
+           x5-video-orientation="portrait">
+    </video>
+    <button class="video-skip" onclick="skipVideo()">跳过</button>
+  </div>
+</div>
+
+<!-- ===== GAME PAGE ===== -->
+<div id="page-game" class="page">
+  <!-- Main game (tree canvas) -->
+  <canvas id="treeCanvas" style="z-index:1;position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
+  <canvas id="scratchCanvas" style="z-index:2;position:absolute;top:0;left:0;width:100%;height:100%"></canvas>
+  <canvas id="particleCanvas" style="z-index:3;position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+
+  <!-- Disc phase UI -->
+  <div id="discHint" class="disc-hint" style="display:none">✨ 刮开银色圆片，看看有什么惊喜</div>
+  <div id="discCounter" class="disc-counter" style="display:none"></div>
+
+  <!-- Prize popup -->
+  <div id="prizeOverlay" class="prize-overlay">
+    <div class="prize-popup">
+      <div class="prize-emoji" id="prizeEmoji">🎁</div>
+      <div class="prize-text">🎉 恭喜你获得了</div>
+      <div class="prize-content" id="prizeContent"></div>
+      <button class="prize-close" onclick="closePrizePopup()">好的！</button>
+    </div>
+  </div>
+
+  <!-- Summary popup -->
+  <div id="summaryOverlay" class="prize-overlay">
+    <div class="prize-popup" style="max-width:320px">
+      <div class="prize-emoji">🎄</div>
+      <div class="prize-text">你的圣诞惊喜</div>
+      <div id="summaryList" style="font-size:14px;color:rgba(255,255,255,0.7);line-height:2;margin:8px 0;max-height:200px;overflow-y:auto;"></div>
+      <button class="prize-close" onclick="document.getElementById('summaryOverlay').classList.remove('show')">好的！</button>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div id="bottomCta" class="bottom-cta">
+    <button class="cta-btn" onclick="goToCreate()">✨ 也为朋友准备一份惊喜吧</button>
+  </div>
+</div>
+
+<!-- ===== CREATE PAGE ===== -->
+<div id="page-create" class="page">
+  <div class="setup-scroll">
+    <div class="setup-title">为朋友准备一份圣诞惊喜</div>
+
+    <!-- ===== 步骤 1：选树 ===== -->
+    <div id="createStep1">
+      <div class="section-label">🎄 选择圣诞树</div>
+      <div class="tree-grid" id="treeGrid">
+        <div class="tree-option selected" data-tree="1"><img src="assets/tree-1.jpg" alt="树1"></div>
+        <div class="tree-option" data-tree="2"><img src="assets/tree-2.jpg" alt="树2"></div>
+        <div class="tree-option" data-tree="3"><img src="assets/tree-3.jpg" alt="树3"></div>
+        <div class="tree-option" data-tree="4"><img src="assets/tree-4.jpg" alt="树4"></div>
+      </div>
+      <button class="generate-btn" id="step1Next" style="margin-top:30px;" onclick="document.getElementById('createStep1').style.display='none';document.getElementById('createStep2').style.display='block';">下一步 ›</button>
+    </div>
+
+    <!-- ===== 步骤 2：配圆片 + 设次数 + 生成 ===== -->
+    <div id="createStep2" style="display:none;">
+      <div class="section-label">🎁 点击圆片设置奖品</div>
+      <div class="disc-grid" id="discGrid">
+        <div class="disc-row"><div class="disc-dot" data-pos="1" onclick="window._onDiscClick(1)">1</div></div>
+        <div class="disc-row"><div class="disc-dot" data-pos="2" onclick="window._onDiscClick(2)">2</div><div class="disc-dot" data-pos="3" onclick="window._onDiscClick(3)">3</div></div>
+        <div class="disc-row"><div class="disc-dot" data-pos="4" onclick="window._onDiscClick(4)">4</div><div class="disc-dot" data-pos="5" onclick="window._onDiscClick(5)">5</div><div class="disc-dot" data-pos="6" onclick="window._onDiscClick(6)">6</div></div>
+        <div class="disc-row"><div class="disc-dot" data-pos="7" onclick="window._onDiscClick(7)">7</div><div class="disc-dot" data-pos="8" onclick="window._onDiscClick(8)">8</div><div class="disc-dot" data-pos="9" onclick="window._onDiscClick(9)">9</div><div class="disc-dot" data-pos="10" onclick="window._onDiscClick(10)">10</div></div>
+      </div>
+
+      <!-- 圆片编辑面板 -->
+      <div id="discEditor" style="display:none;margin-top:12px;">
+        <span class="disc-editor-pos" style="font-size:14px;color:rgba(255,255,255,0.5);"></span>
+        <div class="prize-input-area" style="margin-top:8px;">
+          <input class="prize-custom-input" id="prizeCustomInput" placeholder="自定义填写，回车确认（限15字）" maxlength="15" onkeydown="if(event.key==='Enter'){window._onCustomEnter();event.preventDefault();}">
+          <button class="prize-quick-btn" onclick="window._onQuickPrize('香草冰淇淋')">🍦 香草冰淇淋</button>
+          <button class="prize-quick-btn" onclick="window._onQuickPrize('圣诞大餐')">🍽️ 圣诞大餐</button>
+          <button class="prize-quick-btn" onclick="window._onQuickPrize('仙女棒')">✨ 仙女棒</button>
+          <button class="prize-quick-btn" onclick="window._onQuickPrize('一条围巾')">🧣 一条围巾</button>
+          <button class="prize-quick-btn" onclick="window._onQuickPrize('立刻见面吧')">💝 立刻见面吧</button>
+        </div>
+      </div>
+
+      <div class="section-label">🔢 每人可刮次数</div>
+      <div class="count-selector">
+        <button class="count-btn" id="countDown">−</button>
+        <span class="count-value" id="countValue">5</span>
+        <button class="count-btn" id="countUp">+</button>
+      </div>
+
+      <button class="generate-btn" id="generateBtn">✨ 生成专属链接</button>
+
+      <div id="linkResult" class="link-result">
+        <p style="font-size:14px;color:rgba(255,255,255,0.5);">🎄 链接已生成！发给朋友吧</p>
+        <div class="link-url" id="linkUrl"></div>
+        <button class="copy-btn" id="copyBtn">📋 复制链接</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts -->
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/latest/cloudbase.full.js"></script>
+<script src="src/cloudbase.js?v=7"></script>
+<script>
+// ===== 圆片刮擦（内联，避免缓存）=====
+const DiscScratch=(()=>{let sC,sX,rC,rX,aP=null,dD=null,dX=0,dY=0,dR=0,iD=!1,lX=0,lY=0,oR=null,dI=null;
+function init(){if(!sC){sC=document.createElement('canvas');sC.style.cssText='position:fixed;z-index:25;display:none;touch-action:none;pointer-events:auto;';document.body.appendChild(sC);sX=sC.getContext('2d');rC=document.createElement('canvas');rC.style.cssText='position:fixed;z-index:24;display:none;pointer-events:none;';document.body.appendChild(rC);rX=rC.getContext('2d');sC.addEventListener('pointerdown',onD);sC.addEventListener('pointermove',onM);sC.addEventListener('pointerup',onU);sC.addEventListener('pointerleave',onU);}if(!dI){dI=new Image();dI.src='assets/disc.jpg';}}
+function activate(p,d,x,y,r,cb){init();if(aP===p){oR=cb;return;}aP=p;dD=d;dX=x;dY=y;dR=r;oR=cb;iD=!1;var S=Math.ceil(r*2+24),dp=window.devicePixelRatio;sC.width=S*dp;sC.height=S*dp;sC.style.width=S+'px';sC.style.height=S+'px';sC.style.left=(x-S/2)+'px';sC.style.top=(y-S/2)+'px';sC.style.display='block';sX.setTransform(dp,0,0,dp,0,0);sX.globalCompositeOperation='source-over';sX.clearRect(0,0,S,S);sX.save();sX.beginPath();sX.arc(S/2,S/2,r,0,Math.PI*2);sX.clip();if(dI&&dI.complete){sX.drawImage(dI,S/2-r,S/2-r,r*2,r*2)}else{var g=sX.createRadialGradient(S/2,S/2,0,S/2,S/2,r);g.addColorStop(0,'#e0e0e0');g.addColorStop(0.5,'#b0b0b0');g.addColorStop(1,'#606060');sX.fillStyle=g;sX.fill()}sX.restore();rC.width=S*dp;rC.height=S*dp;rC.style.width=S+'px';rC.style.height=S+'px';rC.style.left=(x-S/2)+'px';rC.style.top=(y-S/2)+'px';rC.style.display='block';rX.setTransform(dp,0,0,dp,0,0);rX.clearRect(0,0,S,S);var bg=rX.createRadialGradient(S/2,S/2,0,S/2,S/2,r);bg.addColorStop(0,'#2a2040');bg.addColorStop(1,'#0d0d1a');rX.fillStyle=bg;rX.beginPath();rX.arc(S/2,S/2,r,0,Math.PI*2);rX.fill();rX.strokeStyle='rgba(255,255,255,0.15)';rX.lineWidth=2;rX.beginPath();rX.arc(S/2,S/2,r-1,0,Math.PI*2);rX.stroke();if(d.type==='win'){var em={'香草冰淇淋':'🍦','圣诞大餐':'🍽️','仙女棒':'✨','一条围巾':'🧣','立刻见面吧':'💝'};rX.fillStyle='#ffd700';rX.font=(r*0.8)+'px sans-serif';rX.textAlign='center';rX.textBaseline='middle';rX.fillText(em[d.content]||'🎁',S/2,S/2)}else{rX.strokeStyle='rgba(255,255,255,0.25)';rX.lineWidth=3;rX.beginPath();rX.arc(S/2,S/2,r*0.35,0,Math.PI*2);rX.stroke()}}
+function capture(e){if(sC&&sC.style.display!=='none')sC.setPointerCapture(e.pointerId)}
+function deactivate(){aP=null;if(sC)sC.style.display='none';if(rC)rC.style.display='none'}
+function onD(e){if(!aP)return;iD=!0;e.preventDefault();var p=gP(e);lX=p.x;lY=p.y;sA(p.x,p.y)}
+function onM(e){if(!iD||!aP)return;e.preventDefault();var p=gP(e),dx=p.x-lX,dy=p.y-lY,dist=Math.sqrt(dx*dx+dy*dy),step=Math.max(1,dR*0.25);if(dist>step){var n=Math.ceil(dist/step);for(var i=0;i<=n;i++)sA(lX+dx*i/n,lY+dy*i/n)}else sA(p.x,p.y);lX=p.x;lY=p.y}
+function onU(e){if(!iD||!aP)return;iD=!1;cP()}
+function gP(e){var r=sC.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
+function sA(x,y){sX.globalCompositeOperation='destination-out';sX.fillStyle='#000';sX.beginPath();sX.arc(x,y,dR*0.25,0,Math.PI*2);sX.fill()}
+function cP(){var w=sC.width/window.devicePixelRatio,h=sC.height/window.devicePixelRatio,sw=Math.floor(w/3),sh=Math.floor(h/3),t=document.createElement('canvas');t.width=sw;t.height=sh;var tx=t.getContext('2d');tx.drawImage(sC,0,0,sw,sh);var img=tx.getImageData(0,0,sw,sh),tr=0,tt=sw*sh;for(var i=3;i<img.data.length;i+=4)if(img.data[i]<128)tr++;if(tr/tt>=0.5){deactivate();if(oR)oR(aP)}}
+return{init,activate,capture,deactivate}})();
+</script>
+<script src="src/router.js?v=7"></script>
+<script src="renderer/scratch-layer.js?v=7"></script>
+<script src="renderer/particle-system.js?v=7"></script>
+<script src="renderer/sound-manager.js?v=7"></script>
+<script src="renderer/app.js?v=7"></script>
+<script src="src/pages/home.js?v=7"></script>
+<script>
+// ===== 视频页（内联）=====
+const VideoPage=(()=>{let c,r,x;async function s(p){c=document.getElementById('page-video');if(!c)return;c.classList.add('active');r=p.redirect||'game';var v=c.querySelector('video'),sp=c.querySelector('.video-splash'),pb=c.querySelector('.progress-bar'),pt=c.querySelector('.progress-text'),sk=c.querySelector('.video-skip'),id=p.id||'';if(sessionStorage.getItem('mv_'+id)){n(id);return}sp.style.display='flex';v.style.display='none';if(pb)pb.style.width='0%';if(pt)pt.textContent='0%';if(x)x.abort();v.muted=true;x=new XMLHttpRequest();x.open('GET','assets/intro.mp4',true);x.responseType='blob';x.onprogress=e=>{if(e.lengthComputable){var pct=Math.round(e.loaded/e.total*100);if(pb)pb.style.width=pct+'%';if(pt)pt.textContent=pct+'%'}};x.onload=()=>{if(pb)pb.style.width='100%';if(pt)pt.textContent='100%';v.src=URL.createObjectURL(x.response);if(pb)pb.style.width='100%';if(pt)pt.textContent='100%';sp.innerHTML='<div class=\"splash-title\">Merry Scratch</div><div class=\"splash-subtitle\">圣诞刮刮乐</div><div style=\"margin-top:20px;padding:14px 40px;border:1px solid rgba(255,200,140,0.4);border-radius:30px;background:rgba(255,200,140,0.1);color:rgba(255,225,190,0.8);font-size:16px;letter-spacing:3px;cursor:pointer\" id=\"playBtn\">▶ 点击播放</div>';document.getElementById('playBtn').onclick=()=>{sp.style.display='none';v.style.display='block';v.muted=false;v.play().catch(()=>{})}};x.onerror=()=>{sp.style.display='none';v.style.display='none';if(sk)sk.style.display='block'};x.send();v.onended=()=>{sessionStorage.setItem('mv_'+id,'1');n(id)}}function n(id){if(x)x.abort();c.classList.remove('active');c.querySelector('video').pause();var p=id?'id='+id:'';var t=Router.getParams().treeId||'1';Router.navigate('game',p+(p?'&':'')+'treeId='+t)}function h(){if(x)x.abort();if(c)c.classList.remove('active');c.querySelector('video').pause()}window.skipVideo=()=>{if(x)x.abort();var id=Router.getParams().id||'';sessionStorage.setItem('mv_'+id,'1');n(id)};return{show:s,hide:h}})();
+Router.register('video',VideoPage);
+</script>
+<script src="src/pages/create-v2.js"></script>
+<script src="src/pages/game-1781691698.js"></script>
+<script>
+  // 全局点击处理：首页按钮
+  document.querySelectorAll('.home-btn').forEach(btn => {
+    const text = btn.textContent.trim();
+    btn.addEventListener('click', () => {
+      if (text.includes('刮奖链接')) {
+        // TODO: 输入链接或直接演示
+        const id = prompt('请输入刮奖链接 ID（或直接确定进入演示）：') || 'demo';
+        Router.navigate('video', `redirect=game&id=${id}&treeId=1`);
+      } else if (text.includes('准备惊喜')) {
+        Router.navigate('create');
+      }
+    });
+  });
+</script>
 </body>
 </html>

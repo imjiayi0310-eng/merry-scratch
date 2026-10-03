@@ -1,41 +1,19 @@
-/**
- * sw.js — Service Worker
- * 提供离线缓存支持，让 PWA 可在无网络时运行
- */
-const CACHE_NAME = 'merry-scratch-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './renderer/storage.js',
-  './renderer/tree-drawer.js',
-  './renderer/sound-manager.js',
-  './renderer/particle-system.js',
-  './renderer/scratch-layer.js',
-  './renderer/app.js',
-];
+// Service Worker — 清除所有旧缓存，强制重新加载
+const V = 'v99';
 
-// 安装：预缓存所有资源
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
-// 激活：清理旧缓存
 self.addEventListener('activate', event => {
+  // 删除所有旧缓存
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
   );
   self.clients.claim();
 });
 
-// 请求拦截：缓存优先
+// 不缓存任何内容，全部走网络
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
-  );
+  event.respondWith(fetch(event.request));
 });

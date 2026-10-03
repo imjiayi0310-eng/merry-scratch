@@ -1,0 +1,27 @@
+{
+  "envId": "hmyjh12-d8g8lf2oz5b5a1de8",
+  "version": "2.0",
+  "framework": {
+    "name": "merry-scratch",
+    "plugins": {
+      "client": {
+        "inputs": {
+          "buildCommand": "",
+          "outputPath": "./",
+          "ignore": [
+            ".git",
+            ".gitignore",
+            "node_modules",
+            "package-lock.json",
+            "*.MOV",
+            "生成图片*",
+            "IMG_*",
+            "devlog",
+            "docs",
+            "*.tar.gz"
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "merry-scratch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sw.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imjiayi0310-eng/merry-scratch.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/imjiayi0310-eng/merry-scratch/issues"
+  },
+  "homepage": "https://github.com/imjiayi0310-eng/merry-scratch#readme",
+  "dependencies": {
+    "@cloudbase/js-sdk": "^3.4.6"
+  },
+  "devDependencies": {
+    "@cloudbase/cli": "^3.5.6"
+  }
+}
